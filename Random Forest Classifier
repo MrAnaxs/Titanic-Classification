@@ -1,0 +1,57 @@
+### **Fitting Data To Model**
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import LeaveOneOut, GridSearchCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+import numpy as np
+import pandas as pd
+
+# Select features and target
+X = titanic[['sex', 'age', 'fare', 'FamilySize', 'sibsp']]
+y = titanic['survived']
+
+# Step 1: Scaling
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Step 2: Initialize the Random Forest Classifier model
+rf = RandomForestClassifier()
+
+# Step 3: Define the parameter grid for GridSearchCV
+param_grid = {
+    'n_estimators': [10, 50, 100, 200],  # Number of trees in the forest
+    'max_depth': [None, 10, 20, 30],      # Maximum depth of each tree
+    'min_samples_split': [2, 5, 10],      # Minimum samples required to split a node
+    'min_samples_leaf': [1, 2, 4],        # Minimum samples required at a leaf node
+    'max_features': ['auto', 'sqrt', 'log2']  # Number of features to consider for splitting a node
+}
+
+# Step 4: Set up Leave-One-Out Cross-Validation
+loo = LeaveOneOut()
+
+# Step 5: GridSearchCV with Leave-One-Out CV
+grid_search = GridSearchCV(rf, param_grid, cv=loo, scoring='accuracy')
+
+# Step 6: Fit the model with GridSearchCV
+grid_search.fit(X_scaled, y)
+
+# Step 7: Get the best parameters and the best model
+best_params = grid_search.best_params_
+best_model = grid_search.best_estimator_
+
+print(f"Best Parameters: {best_params}")
+
+# Step 8: Make predictions using the best model
+y_pred = best_model.predict(X_scaled)
+
+# Step 9: Evaluate the model
+accuracy = accuracy_score(y, y_pred)
+print(f'Accuracy: {accuracy * 100:.2f}%')
+
+# Confusion Matrix
+print('Confusion Matrix:')
+print(confusion_matrix(y, y_pred))
+
+# Classification Report
+print('Classification Report:')
+print(classification_report(y, y_pred))
