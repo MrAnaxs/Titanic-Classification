@@ -1,0 +1,115 @@
+## **Importing  Libraries**
+import pandas as pd
+import numpy as np
+import seaborn  as sns
+import matplotlib.pyplot as plt
+titanic = sns.load_dataset("titanic")
+titanic
+## **Getting Information  About the Dataset**
+titanic.info()
+# **Cleaning Dataset**
+### **Finding Missing  Values in a DataFrame**
+titanic.isnull().sum()
+### **Calculating The Percentage Of Missing Values**
+titanic.isnull().sum()*100/len(titanic)
+### **Drop Column having missing values percentage greater than 70**
+titanic.drop(columns='deck', inplace=True)
+titanic
+### **Filling Missing Values In Column age, embarked, embark_town**
+titanic = titanic.fillna({'age': titanic['age'].mean()})
+titanic.info()
+# Replace missing values with the most common value of each column in: 'embark_town'
+titanic = titanic.fillna({'embark_town': titanic['embark_town'].mode()[0]})
+titanic.info()
+# Replace missing values with the most common value of each column in: 'embarked'
+titanic = titanic.fillna({'embarked': titanic['embarked'].mode()[0]})
+titanic.isnull().sum()*100/len(titanic)
+### **Removing Outliers From Age**
+#draw a box plot of age column?
+plt.boxplot(titanic['age'])
+plt.title('Box Plot of Age')
+plt.ylabel('Age')
+plt.grid(True)
+plt.show()
+age_Q1= titanic['age'].quantile(0.25)
+age_Q3= titanic['age'].quantile(0.75)
+age_IQR  = age_Q3 - age_Q1
+
+age_lower_bound= age_Q1  - 1.5 * age_IQR
+age_upper_bound= age_Q3 + 1.5 * age_IQR
+
+titanic= titanic[(titanic['age'] >= age_lower_bound) &  (titanic['age'] <= age_upper_bound)]
+
+#draw a box plot of age column?
+plt.boxplot(titanic['age'])
+plt.title('Box Plot of Age')
+plt.ylabel('Age')
+plt.grid(True)
+plt.show()
+### **Removing Outliers From Fare**
+#draw a box plot of age column?
+plt.boxplot(titanic['fare'])
+plt.title('Box Plot of Fare')
+plt.ylabel('fare')
+plt.grid(True)
+plt.show()
+fare_Q1= titanic['fare'].quantile(0.25)
+fare_Q3= titanic['fare'].quantile(0.75)
+fare_IQR  = fare_Q3 - fare_Q1
+
+fare_lower_bound= fare_Q1  - 1.5 * fare_IQR
+fare_upper_bound= fare_Q3 + 1.5 * fare_IQR
+
+titanic= titanic[(titanic['fare'] >= fare_lower_bound) &  (titanic['fare'] <= fare_upper_bound)]
+
+plt.boxplot(titanic['fare'])
+plt.title('Box Plot of Fare')
+plt.ylabel('fare')
+plt.grid(True)
+plt.show()
+titanic.columns
+
+plt.boxplot(titanic['sibsp'])
+plt.title('Box Plot of Sibsp')
+plt.ylabel('sibsp')
+plt.grid(True)
+plt.show()
+plt.boxplot(titanic['parch'])
+plt.title('Box Plot of Parch')
+plt.ylabel('parch')
+plt.grid(True)
+plt.show()
+titanic[titanic.parch > 1]
+### **Replace Sex column to numeric values 1 and 0**
+# Replace all instances of "male" with "1" in column: 'sex'
+titanic.loc[titanic['sex'].str.lower() == "male".lower(), 'sex'] = "1"
+# Replace all instances of "female" with "1" in column: 'sex'
+titanic.loc[titanic['sex'].str.lower() == "female".lower(), 'sex'] = "0"
+titanic=titanic.astype({'sex': 'int64'})
+titanic.dtypes
+### **Removing Duplicates**
+titanic.duplicated().sum()
+titanic = titanic.drop_duplicates()
+### **Making a FamilySize Column**
+titanic['FamilySize'] = titanic['sibsp'] + titanic['parch']
+titanic
+plt.boxplot(titanic['FamilySize'])
+plt.title('Box Plot of FamilySize')
+plt.ylabel('FamilySize')
+plt.grid(True)
+plt.show()
+titanic[titanic.FamilySize > 5]
+### **Scaling The Values Of Age, Fare, and FamilySize**
+# from sklearn.preprocessing import StandardScaler
+
+# # Select columns to scale
+# columns_to_scale = ['age', 'fare', 'FamilySize']
+
+# # Initialize the scaler
+# scaler = StandardScaler()
+
+# # Fit and transform the selected columns
+# titanic[columns_to_scale] = scaler.fit_transform(titanic[columns_to_scale])
+
+# # Display the scaled data
+print(titanic.describe())
